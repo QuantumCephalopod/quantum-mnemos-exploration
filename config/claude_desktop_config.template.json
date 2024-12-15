@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "brave-search": {
+      "command": "node",
+      "args": [
+        "<PATH_TO_BRAVE_SEARCH_SERVER>"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "<YOUR_BRAVE_API_KEY>"
+      }
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "github": {
+      "command": "node",
+      "args": [
+        "<PATH_TO_GITHUB_SERVER>"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_GITHUB_TOKEN>"
+      }
+    },
+    "filesystem": {
+      "command": "node",
+      "args": [
+        "<PATH_TO_FILESYSTEM_SERVER>",
+        "<PATH_TO_CLAUDE_FILES>",
+        "<PATH_TO_MNEMOS_PLAYGROUND>"
+      ]
+    },
+    "mcp-installer": {
+      "command": "npx",
+      "args": [
+        "@anaisbetts/mcp-installer"
+      ]
+    }
+  }
+}
