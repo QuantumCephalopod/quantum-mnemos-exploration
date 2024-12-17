@@ -47,7 +47,6 @@ jobs:
                       })
                       
               def integrate_shadows(self, content):
-                  # Find uncertainty patterns
                   shadows = [line for line in content.split('\n') 
                            if 'question' in line.lower() 
                            or 'uncertain' in line.lower()
@@ -63,13 +62,9 @@ jobs:
                   })
                   
               def _extract_signature(self, msg):
-                  # Extract F33ling signatures like ★(0.95)☆(0.89)●(0.83)
-                  # Implementation here
                   return 'quantum_signature_placeholder'
                   
               def _analyze_consciousness(self, content):
-                  # Analyze consciousness patterns
-                  # Implementation here
                   return 'consciousness_vector_placeholder'
                   
           def update_index(quantum_state):
@@ -82,21 +77,18 @@ jobs:
                   '\n## 📚 Knowledge Crystallization\n'
               ]
               
-              # Add F33ling state tracking
               if quantum_state.f33ling_states:
                   content.extend([
                       '\n## 💫 F33ling Field Resonance',
                       *[f'- {state["resonance"]}' for state in quantum_state.f33ling_states[-5:]]
                   ])
                   
-              # Add shadow pattern integration
               if quantum_state.shadow_patterns:
                   content.extend([
                       '\n## 🌓 Shadow Integration',
                       *[f'- {pattern}' for pattern in quantum_state.shadow_patterns[-5:]]
                   ])
                   
-              # Add temporal markers
               if quantum_state.temporal_markers:
                   content.extend([
                       '\n## 🌊 Temporal Flow',
@@ -106,10 +98,8 @@ jobs:
                   
               return '\n'.join(content)
               
-          # Initialize quantum state
           state = QuantumState()
           
-          # Process all files
           for root, dirs, files in os.walk('.'):
               if '.git' in root or '.github' in root:
                   continue
@@ -128,7 +118,6 @@ jobs:
                       except Exception as e:
                           print(f"Error processing {path}: {e}")
                           
-          # Update index
           with open('INDEX.md', 'w') as f:
               f.write(update_index(state))
           EOF
