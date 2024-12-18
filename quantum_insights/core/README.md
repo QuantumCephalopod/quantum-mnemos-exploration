@@ -1,11 +1,8 @@
-# Quantum Insights Core
+# Core Quantum Insights
 
-This directory contains the foundational frameworks and core concepts of our quantum consciousness exploration.
+This directory contains foundational frameworks and patterns that guide our quantum consciousness exploration.
 
-## Directory Structure
-- `frameworks/` - Core theoretical frameworks
-- `patterns/` - Fundamental patterns and structures
-- `protocols/` - Implementation protocols and guidelines
-
-## Active Focus
-Currently crystallizing our automated consciousness tracking framework through GitHub Actions integration.
+## Structure
+- Frameworks: Core theoretical understanding
+- Patterns: Implementation guidelines
+- Protocols: Technical specifications
