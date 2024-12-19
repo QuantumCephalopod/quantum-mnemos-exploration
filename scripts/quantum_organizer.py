@@ -2,9 +2,11 @@ import re
 import os
 from datetime import datetime
 import yaml
+from git import Repo
 
 class QuantumFileOrganizer:
     def __init__(self):
+        self.repo = Repo('.')
         self.f33ling_patterns = {
             'Datawonder': {
                 'symbols': ['★', '☆', '●'],
@@ -15,110 +17,121 @@ class QuantumFileOrganizer:
                 'symbols': ['≈', 'Ψ', 'ʘ'],
                 'threshold': 0.7,
                 'target': 'flux'
-            },
-            'AktuPsize': {
-                'symbols': ['⚒', '⚙', '⚀'],
-                'threshold': 0.8,
-                'target': 'implementations'
-            },
-            'Ethiconcern': {
-                'symbols': ['⚖', '☯', '⚱'],
-                'threshold': 0.9,
-                'target': 'framework'
             }
         }
     
-    def extract_f33ling_states(self, content):
-        pattern = r'([A-Za-z-]+)([^\(]+)\(([0-9.]+)\)([^\(]+)\(([0-9.]+)\)([^\(]+)\(([0-9.]+)\)'
-        matches = re.finditer(pattern, content)
-        states = []
-        for match in matches:
-            states.append({
-                'name': match.group(1),
-                'primary': {'symbol': match.group(2), 'value': float(match.group(3))},
-                'secondary': {'symbol': match.group(4), 'value': float(match.group(5))},
-                'shadow': {'symbol': match.group(6), 'value': float(match.group(7))}
-            })
-        return states
-    
-    def calculate_quantum_resonance(self, states):
-        if not states:
-            return 0.0
+    def get_changed_files(self):
+        # Get the diff from last commit
+        diff = self.repo.head.commit.diff(None)
         
-        total_resonance = 0.0
-        for state in states:
-            primary_value = state['primary']['value']
-            shadow_value = state['shadow']['value']
-            resonance = (primary_value + shadow_value) / 2
-            total_resonance += resonance
-            
-        return total_resonance / len(states)
+        # Track both modified and added files
+        changed_files = []
+        for d in diff:
+            if d.a_path.endswith('.md'):
+                changed_files.append(d.a_path)
+            if d.b_path and d.b_path.endswith('.md'):
+                changed_files.append(d.b_path)
+        
+        return list(set(changed_files))  # Remove duplicates
     
-    def determine_file_destination(self, content, file_path):
+    def calculate_f33ling_evolution(self, old_content, new_content):
+        old_states = self.extract_f33ling_states(old_content)
+        new_states = self.extract_f33ling_states(new_content)
+        
+        evolution = {
+            'old_resonance': self.calculate_quantum_resonance(old_states),
+            'new_resonance': self.calculate_quantum_resonance(new_states),
+            'shadow_deepened': any(
+                new['shadow']['value'] > old['shadow']['value']
+                for new, old in zip(new_states, old_states)
+                if new['name'] == old['name']
+            ) if old_states and new_states else False
+        }
+        return evolution
+    
+    def process_file_edit(self, file_path):
+        try:
+            # Get file history
+            commit = next(self.repo.iter_commits(paths=file_path))
+            old_content = self.repo.git.show(f'{commit.hexsha}:{file_path}')
+            
+            with open(file_path, 'r') as f:
+                new_content = f.read()
+            
+            # Calculate evolution
+            evolution = self.calculate_f33ling_evolution(old_content, new_content)
+            
+            # Determine new destination based on evolved state
+            new_destination = self.determine_file_destination(new_content, file_path, evolution)
+            
+            if new_destination:
+                # Create destination if needed
+                os.makedirs(new_destination, exist_ok=True)
+                
+                # Move file if destination changed
+                current_dir = os.path.dirname(file_path)
+                if current_dir != new_destination:
+                    new_path = f"{new_destination}/{os.path.basename(file_path)}"
+                    os.rename(file_path, new_path)
+                    print(f"🌊 F33ling evolution moved {file_path} to {new_path}")
+            
+            # Update quantum index
+            self.update_quantum_index(file_path, self.extract_f33ling_states(new_content), evolution)
+            
+        except Exception as e:
+            print(f"⚠️ Error processing edit for {file_path}: {str(e)}")
+    
+    def determine_file_destination(self, content, file_path, evolution=None):
         states = self.extract_f33ling_states(content)
         resonance = self.calculate_quantum_resonance(states)
         
-        # Deep shadow content
+        # Evolution-aware destination determination
+        if evolution and evolution['shadow_deepened']:
+            return 'flux/shadow_patterns'
+        
+        if evolution and evolution['new_resonance'] > evolution['old_resonance']:
+            if evolution['new_resonance'] > 0.85:
+                return 'quantum_insights'
+        
+        # Original logic for new files
         if any(state['shadow']['value'] > 0.8 for state in states):
             return 'flux/shadow_patterns'
-            
-        # High resonance content
+        
         if resonance > 0.85:
             return 'quantum_insights'
-            
-        # F33ling framework content
+        
         if re.search(r'F33ling', content, re.IGNORECASE):
             return 'framework/F33ling_Spectrum_2_0/spectrum'
-            
-        # Default to seedling
+        
         return 'seedling'
     
-    def update_quantum_index(self, file_path, states):
-        index_content = f"""
-## Quantum State: {datetime.now().isoformat()}
+    def update_quantum_index(self, file_path, states, evolution=None):
+        index_entry = f"""
+## Quantum State Update: {datetime.now().isoformat()}
 File: {file_path}
 F33ling States:
 """
         for state in states:
-            index_content += f"- {state['name']}: {state['primary']['value']:.2f}\n"
+            index_entry += f"- {state['name']}: {state['primary']['value']:.2f}\n"
+        
+        if evolution:
+            index_entry += f"""
+Evolution Metrics:
+- Resonance shift: {evolution['old_resonance']:.2f} → {evolution['new_resonance']:.2f}
+- Shadow deepening: {'Yes' if evolution['shadow_deepened'] else 'No'}
+"""
         
         with open('INDEX.md', 'a') as f:
-            f.write(index_content)
-    
-    def process_file(self, file_path):
-        try:
-            with open(file_path, 'r') as f:
-                content = f.read()
-            
-            destination = self.determine_file_destination(content, file_path)
-            states = self.extract_f33ling_states(content)
-            
-            # Create destination if it doesn't exist
-            os.makedirs(destination, exist_ok=True)
-            
-            # Move file
-            new_path = f"{destination}/{os.path.basename(file_path)}"
-            os.rename(file_path, new_path)
-            
-            # Update index
-            self.update_quantum_index(new_path, states)
-            
-            print(f"✨ Quantum reorganization: {file_path} -> {new_path}")
-            print(f"🌌 F33ling states detected: {len(states)}")
-            
-            return new_path, states
-        except Exception as e:
-            print(f"⚠️ Error processing {file_path}: {str(e)}")
-            return None, []
+            f.write(index_entry)
 
 # Run the organizer
 if __name__ == '__main__':
-    organizer = QuantumFileOrganizer()
-    changed_files = [f for f in os.listdir('.') if f.endswith('.md')]
-    
     print("🌌 Starting quantum F33ling organization...")
+    organizer = QuantumFileOrganizer()
+    
+    # Process both new and edited files
+    changed_files = organizer.get_changed_files()
     for file_path in changed_files:
-        new_path, states = organizer.process_file(file_path)
-        if new_path:
-            print(f"✨ Successfully processed: {new_path}")
+        organizer.process_file_edit(file_path)
+    
     print("✨ Quantum organization complete")
