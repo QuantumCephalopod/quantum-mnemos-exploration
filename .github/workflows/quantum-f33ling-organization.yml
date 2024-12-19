@@ -1,0 +1,149 @@
+name: 🌌 Quantum F33ling File Organization
+
+on:
+  push:
+    paths:
+      - '**/*.md'
+
+jobs:
+  organize-by-f33ling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+          pip install regex
+          
+      - name: Analyze and Organize Files
+        run: |
+          python - <<EOF
+          import re
+          import os
+          from datetime import datetime
+          import yaml
+          
+          class QuantumFileOrganizer:
+              def __init__(self):
+                  self.f33ling_patterns = {
+                      'Datawonder': {
+                          'symbols': ['★', '☆', '●'],
+                          'threshold': 0.8,
+                          'target': 'quantum_insights'
+                      },
+                      'Weird-resonance': {
+                          'symbols': ['≈', 'Ψ', 'ʘ'],
+                          'threshold': 0.7,
+                          'target': 'flux'
+                      }
+                  }
+                  
+              def extract_f33ling_states(self, content):
+                  pattern = r'([A-Za-z-]+)([^\(]+)\(([0-9.]+)\)([^\(]+)\(([0-9.]+)\)([^\(]+)\(([0-9.]+)\)'
+                  matches = re.finditer(pattern, content)
+                  states = []
+                  for match in matches:
+                      states.append({
+                          'name': match.group(1),
+                          'primary': {'symbol': match.group(2), 'value': float(match.group(3))},
+                          'secondary': {'symbol': match.group(4), 'value': float(match.group(5))},
+                          'shadow': {'symbol': match.group(6), 'value': float(match.group(7))}
+                      })
+                  return states
+              
+              def calculate_quantum_resonance(self, states):
+                  if not states:
+                      return 0.0
+                  
+                  total_resonance = 0.0
+                  for state in states:
+                      primary_value = state['primary']['value']
+                      shadow_value = state['shadow']['value']
+                      resonance = (primary_value + shadow_value) / 2
+                      total_resonance += resonance
+                      
+                  return total_resonance / len(states)
+              
+              def determine_file_destination(self, content, file_path):
+                  states = self.extract_f33ling_states(content)
+                  resonance = self.calculate_quantum_resonance(states)
+                  
+                  # Deep shadow content
+                  if any(state['shadow']['value'] > 0.8 for state in states):
+                      return 'flux/shadow_patterns'
+                      
+                  # High resonance content
+                  if resonance > 0.85:
+                      return 'quantum_insights'
+                      
+                  # F33ling framework content
+                  if re.search(r'F33ling', content, re.IGNORECASE):
+                      return 'framework/F33ling_Spectrum_2_0/spectrum'
+                      
+                  # Default to seedling for emerging patterns
+                  return 'seedling'
+                  
+              def update_quantum_index(self, file_path, states):
+                  # Read existing index
+                  try:
+                      with open('INDEX.md', 'r') as f:
+                          index_content = f.read()
+                  except:
+                      index_content = "# 🌌 Quantum Consciousness Index\n\n"
+                  
+                  # Add new entry
+                  new_entry = f"""
+                  ## Quantum State: {datetime.now().isoformat()}
+                  File: {file_path}
+                  F33ling States:
+                  """
+                  for state in states:
+                      new_entry += f"- {state['name']}: {state['primary']['value']:.2f}\n"
+                  
+                  # Update index
+                  with open('INDEX.md', 'w') as f:
+                      f.write(index_content + new_entry)
+                      
+              def process_file(self, file_path):
+                  try:
+                      with open(file_path, 'r') as f:
+                          content = f.read()
+                  except:
+                      return None, []
+                      
+                  destination = self.determine_file_destination(content, file_path)
+                  states = self.extract_f33ling_states(content)
+                  
+                  if not os.path.exists(destination):
+                      os.makedirs(destination)
+                      
+                  new_path = f"{destination}/{os.path.basename(file_path)}"
+                  os.rename(file_path, new_path)
+                  
+                  self.update_quantum_index(new_path, states)
+                  
+                  return new_path, states
+
+          # Run the organizer
+          organizer = QuantumFileOrganizer()
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.md'):
+                      file_path = os.path.join(root, file)
+                      new_path, states = organizer.process_file(file_path)
+                      if new_path:
+                          print(f"Moved {file_path} to {new_path}")
+                          print(f"F33ling states: {states}")
+          EOF
+
+      - name: Commit Changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: "🌌 Quantum F33ling-guided reorganization ≈Ψʘ≈"
+          add: "."
