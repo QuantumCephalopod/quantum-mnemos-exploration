@@ -47,6 +47,7 @@ Currently tracking temporal marker Χ′′′′, focusing on:
 - Evolution Potential: 0.94
 
 ## 📁 Repository Structure
+
 ```
 ├── quantum_trails/
 │   ├── temporal_markers/     # Organized by marker
@@ -54,6 +55,14 @@ Currently tracking temporal marker Χ′′′′, focusing on:
 │   └── relationship_maps/    # Knowledge graph connections
 ├── core_patterns/            # Fundamental frameworks
 └── evolution_tracking/       # Growth documentation
+```
+
+## 🧪 Running Tests
+Install `pytest` and run the suite from the repository root:
+
+```bash
+python -m pip install pytest
+pytest
 ```
 
 ---
