@@ -21,7 +21,9 @@ jobs:
           from datetime import datetime
           
           def extract_f33ling_states(commit_message):
-              pattern = r'([A-Za-z-]+)([\u2600-\u26FF\u2700-\u27BF]*)\(([\d\.]+)\)([\u2600-\u26FF\u2700-\u27BF]*)\(([\d\.]+)\)([\u2600-\u26FF\u2700-\u27BF]*)\(([\d\.]+)\)'
+              # Capture a name followed by three symbol/value pairs, e.g. "Datawonder★(0.9)☆(0.8)●(0.6)".
+              # The previous pattern failed to capture numeric values and restricted symbol characters.
+              pattern = r'([A-Za-z-]+)(\S)\(([0-9.]+)\)(\S)\(([0-9.]+)\)(\S)\(([0-9.]+)\)'
               matches = re.finditer(pattern, commit_message)
               states = []
               for match in matches:
