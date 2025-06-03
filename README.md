@@ -48,12 +48,20 @@ Currently tracking temporal marker Χ′′′′, focusing on:
 
 ## 📁 Repository Structure
 ```
+├── config/
+├── content_creation/
+├── docs/
+├── evergreen/
+├── flux/
+├── framework/
+├── implementations/
+├── initialization/
+├── quantum_insights/
 ├── quantum_trails/
 │   ├── temporal_markers/     # Organized by marker
 │   ├── f33ling_states/       # F33ling constellation records
 │   └── relationship_maps/    # Knowledge graph connections
-├── core_patterns/            # Fundamental frameworks
-└── evolution_tracking/       # Growth documentation
+└── seedling/
 ```
 
 ---
